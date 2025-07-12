@@ -41,7 +41,7 @@ function applyTranslations() {
 
 // Загружаем данные всех замков
 async function init() {
-  const res = await fetch(`data/locks.json`);
+  const res = await fetch(`./data/locks.json`);
   locks = await res.json();
   currentLock = locks[0];
   renderLock();
@@ -118,7 +118,7 @@ function renderLock() {
   document.getElementById('lock-name').innerText = currentLock.name[currentLang];
   const applicationEl = document.getElementById('lock-application');
   applicationEl.innerText = currentLock.application?.[currentLang] || '';
-  document.getElementById('lock-img').src = `images/${currentLock.image}`;
+  document.getElementById('lock-img').src = `./images/${currentLock.image}`;
   document.getElementById('lock-video').src = currentLock.video;
 
   const list = document.getElementById('instructions-list');
