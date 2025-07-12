@@ -18,26 +18,26 @@ function applyTranslations() {
 }
 
 // Проверка доступа через FingerprintJS
-FingerprintJS.load().then(fp => {
-  fp.get().then(result => {
-    const visitorId = result.visitorId;
-
-    fetch('/api/verify-access', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fingerprint: visitorId }),
-      credentials: 'include'
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (!data.allowed) {
-          document.body.innerHTML = '<h2 style="text-align:center; padding:40px;">🚫 Доступ запрещён</h2>';
-        } else {
-          init();
-        }
-      });
-  });
-});
+//FingerprintJS.load().then(fp => {
+//  fp.get().then(result => {
+//    const visitorId = result.visitorId;
+//
+//    fetch('/api/verify-access', {
+//      method: 'POST',
+//      headers: { 'Content-Type': 'application/json' },
+//      body: JSON.stringify({ fingerprint: visitorId }),
+//      credentials: 'include'
+//    })
+//      .then(res => res.json())
+//      .then(data => {
+//        if (!data.allowed) {
+//          document.body.innerHTML = '<h2 style="text-align:center; padding:40px;">🚫 Доступ запрещён</h2>';
+//        } else {
+//          init();
+//        }
+//      });
+//  });
+//});
 
 // Загружаем данные всех замков
 async function init() {
