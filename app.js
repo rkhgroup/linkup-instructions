@@ -160,14 +160,6 @@ li.appendChild(contentDiv);
     };
     list.appendChild(li);
   });
-
-  document.getElementById('pdf-ru').onclick = () => {
-    window.open(currentLock.pdf.ru, '_blank');
-  };
-
-  document.getElementById('pdf-kz').onclick = () => {
-    window.open(currentLock.pdf.kz, '_blank');
-  };
 }
 
 document.addEventListener('DOMContentLoaded', init);
