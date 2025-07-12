@@ -17,28 +17,6 @@ function applyTranslations() {
   }
 }
 
-// Проверка доступа через FingerprintJS
-//FingerprintJS.load().then(fp => {
-//  fp.get().then(result => {
-//    const visitorId = result.visitorId;
-//
-//    fetch('/api/verify-access', {
-//      method: 'POST',
-//      headers: { 'Content-Type': 'application/json' },
-//      body: JSON.stringify({ fingerprint: visitorId }),
-//      credentials: 'include'
-//    })
-//      .then(res => res.json())
-//      .then(data => {
-//        if (!data.allowed) {
-//          document.body.innerHTML = '<h2 style="text-align:center; padding:40px;">🚫 Доступ запрещён</h2>';
-//        } else {
-//          init();
-//        }
-//      });
-//  });
-//});
-
 // Загружаем данные всех замков
 async function init() {
   const res = await fetch(`./data/locks.json`);
@@ -50,67 +28,49 @@ async function init() {
 
   // Поиск
   const searchInput = document.getElementById('search');
-const suggestionsEl = document.getElementById('search-suggestions');
+  const suggestionsEl = document.getElementById('search-suggestions');
 
-searchInput.addEventListener('input', e => {
-  const value = e.target.value.toLowerCase();
-  suggestionsEl.innerHTML = '';
+  searchInput.addEventListener('input', e => {
+    const value = e.target.value.toLowerCase();
+    suggestionsEl.innerHTML = '';
 
-  if (!value) {
-    suggestionsEl.style.display = 'none';
-    return;
-  }
-
-  const matches = locks.filter(lock =>
-    lock.name.ru.toLowerCase().includes(value) || lock.name.kz.toLowerCase().includes(value)
-  );
-
-  if (matches.length === 0) {
-    suggestionsEl.style.display = 'none';
-    return;
-  }
-
-  matches.forEach(lock => {
-    const li = document.createElement('li');
-    li.textContent = lock.name[currentLang];
-    li.onclick = () => {
-      currentLock = lock;
-      renderLock();
-      searchInput.value = '';
-      suggestionsEl.innerHTML = '';
+    if (!value) {
       suggestionsEl.style.display = 'none';
-    };
-    suggestionsEl.appendChild(li);
+      return;
+    }
+
+    const matches = locks.filter(lock =>
+      lock.name.ru.toLowerCase().includes(value) || lock.name.kz.toLowerCase().includes(value)
+    );
+
+    if (matches.length === 0) {
+      suggestionsEl.style.display = 'none';
+      return;
+    }
+
+    matches.forEach(lock => {
+      const li = document.createElement('li');
+      li.textContent = lock.name[currentLang];
+      li.onclick = () => {
+        currentLock = lock;
+        renderLock();
+        searchInput.value = '';
+        suggestionsEl.innerHTML = '';
+        suggestionsEl.style.display = 'none';
+      };
+      suggestionsEl.appendChild(li);
+    });
+
+    suggestionsEl.style.display = 'block';
   });
 
-  suggestionsEl.style.display = 'block';
-});
-
-// При клике вне списка — скрываем подсказки
-document.addEventListener('click', e => {
-  if (!suggestionsEl.contains(e.target) && e.target !== searchInput) {
-    suggestionsEl.innerHTML = '';
-    suggestionsEl.style.display = 'none';
-  }
-});
-
-
-  // Переключение языка
-  document.getElementById('lang-ru').onclick = () => {
-    currentLang = 'ru';
-    document.getElementById('lang-ru').classList.add('active');
-    document.getElementById('lang-kz').classList.remove('active');
-    renderLock();
-    applyTranslations();
-  };
-
-  document.getElementById('lang-kz').onclick = () => {
-    currentLang = 'kz';
-    document.getElementById('lang-kz').classList.add('active');
-    document.getElementById('lang-ru').classList.remove('active');
-    renderLock();
-    applyTranslations();
-  };
+  // При клике вне списка — скрываем подсказки
+  document.addEventListener('click', e => {
+    if (!suggestionsEl.contains(e.target) && e.target !== searchInput) {
+      suggestionsEl.innerHTML = '';
+      suggestionsEl.style.display = 'none';
+    }
+  });
 }
 
 // Отображение информации о замке
@@ -126,40 +86,58 @@ function renderLock() {
   currentLock.instructions[currentLang].forEach(item => {
     const li = document.createElement('li');
     li.classList.add('collapsible-item');
+    
     const titleDiv = document.createElement('div');
-titleDiv.className = 'item-title';
-titleDiv.innerText = item.title;
+    titleDiv.className = 'item-title';
+    titleDiv.innerText = item.title;
 
-const contentDiv = document.createElement('div');
-contentDiv.className = 'item-content';
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'item-content';
 
-const steps = item.hint.split(/[-–—→]+|\./).map(s => s.trim()).filter(s => s.length > 0);
+    const steps = item.hint.split(/[-–—→]+|\./).map(s => s.trim()).filter(s => s.length > 0);
 
-if (steps.length > 1) {
-  const ol = document.createElement('ol');
-  ol.style.paddingLeft = '0px';
-  steps.forEach(step => {
-    const li = document.createElement('li');
-    li.textContent = step;
-    ol.appendChild(li);
-  });
-  contentDiv.appendChild(ol);
-} else {
-  contentDiv.textContent = item.hint;
-}
+    if (steps.length > 1) {
+      const ol = document.createElement('ol');
+      ol.style.paddingLeft = '0px';
+      steps.forEach(step => {
+        const liStep = document.createElement('li');
+        liStep.textContent = step;
+        ol.appendChild(liStep);
+      });
+      contentDiv.appendChild(ol);
+    } else {
+      contentDiv.textContent = item.hint;
+    }
 
-titleDiv.onclick = () => {
-  li.classList.toggle('expanded');
-};
-
-li.appendChild(titleDiv);
-li.appendChild(contentDiv);
-
-    li.querySelector('.item-title').onclick = () => {
+    titleDiv.onclick = () => {
       li.classList.toggle('expanded');
     };
+
+    li.appendChild(titleDiv);
+    li.appendChild(contentDiv);
+
     list.appendChild(li);
   });
 }
 
-document.addEventListener('DOMContentLoaded', init);
+// Инициализация после загрузки DOM
+document.addEventListener('DOMContentLoaded', () => {
+  // Обработчики языка
+  document.getElementById('lang-ru').onclick = () => {
+    currentLang = 'ru';
+    document.getElementById('lang-ru').classList.add('active');
+    document.getElementById('lang-kz').classList.remove('active');
+    renderLock();
+    applyTranslations();
+  };
+
+  document.getElementById('lang-kz').onclick = () => {
+    currentLang = 'kz';
+    document.getElementById('lang-kz').classList.add('active');
+    document.getElementById('lang-ru').classList.remove('active');
+    renderLock();
+    applyTranslations();
+  };
+
+  init();
+});
