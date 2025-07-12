@@ -169,3 +169,5 @@ li.appendChild(contentDiv);
     window.open(currentLock.pdf.kz, '_blank');
   };
 }
+
+init();
