@@ -41,7 +41,7 @@ function applyTranslations() {
 
 // Загружаем данные всех замков
 async function init() {
-  const res = await fetch('data/locks.json')  
+  const res = await fetch(`${window.location.pathname}data/locks.json`);
   locks = await res.json();
   currentLock = locks[0];
   renderLock();
