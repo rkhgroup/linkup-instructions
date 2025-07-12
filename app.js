@@ -170,6 +170,4 @@ li.appendChild(contentDiv);
   };
 }
 
-window.onload = () => {
-  init();
-};
+document.addEventListener('DOMContentLoaded', init);
