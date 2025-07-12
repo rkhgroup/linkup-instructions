@@ -170,4 +170,6 @@ li.appendChild(contentDiv);
   };
 }
 
-init();
+window.onload = () => {
+  init();
+};
