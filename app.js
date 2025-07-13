@@ -165,8 +165,8 @@ FingerprintJS.load().then(fp => {
 
         if (!savedFingerprint) {
           // Привязываем токен к fingerprint
-          fetch(`https://firestore.googleapis.com/v1/projects/linkup-instructions/databases/(default)/documents/access_tokens/${token}?updateMask.fieldPaths=fingerprint`, {
-            method: "PATCH",
+          fetch(`https://firestore.googleapis.com/v1/projects/linkup-instructions/databases/(default)/documents:patch?name=projects/linkup-instructions/databases/(default)/documents/access_tokens/${token}&updateMask.fieldPaths=fingerprint`, {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               fields: {
