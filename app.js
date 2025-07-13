@@ -23,10 +23,8 @@ async function init() {
   locks = await res.json();
   currentLock = locks[0];
   renderLock();
-
   applyTranslations();
 
-  // Поиск
   const searchInput = document.getElementById('search');
   const suggestionsEl = document.getElementById('search-suggestions');
 
@@ -64,7 +62,6 @@ async function init() {
     suggestionsEl.style.display = 'block';
   });
 
-  // При клике вне списка — скрываем подсказки
   document.addEventListener('click', e => {
     if (!suggestionsEl.contains(e.target) && e.target !== searchInput) {
       suggestionsEl.innerHTML = '';
@@ -86,7 +83,7 @@ function renderLock() {
   currentLock.instructions[currentLang].forEach(item => {
     const li = document.createElement('li');
     li.classList.add('collapsible-item');
-    
+
     const titleDiv = document.createElement('div');
     titleDiv.className = 'item-title';
     titleDiv.innerText = item.title;
@@ -122,7 +119,6 @@ function renderLock() {
 
 // Инициализация после загрузки DOM
 document.addEventListener('DOMContentLoaded', () => {
-  // Обработчики языка
   document.getElementById('lang-ru').onclick = () => {
     currentLang = 'ru';
     document.getElementById('lang-ru').classList.add('active');
@@ -140,47 +136,35 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Проверка токена и fingerprint
-const urlParams = new URLSearchParams(window.location.search);
-const token = urlParams.get("token");
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get("token");
 
-if (!token) {
-  document.body.innerHTML = '<h2 style="text-align:center;">🚫 Нет токена доступа</h2>';
-  return;
-}
+  if (!token) {
+    document.body.innerHTML = '<h2 style="text-align:center;">🚫 Нет токена доступа</h2>';
+    return;
+  }
 
-FingerprintJS.load().then(fp => {
-  fp.get().then(result => {
-    const fingerprint = result.visitorId;
+  FingerprintJS.load().then(fp => {
+    fp.get().then(result => {
+      const fingerprint = result.visitorId;
 
-    fetch(`https://firestore.googleapis.com/v1/projects/linkup-instructions/databases/(default)/documents/access_tokens/${token}`)
+      fetch("https://us-central1-linkup-instructions.cloudfunctions.net/verifyAccess", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, fingerprint })
+      })
       .then(res => res.json())
       .then(data => {
-        const doc = data.fields;
-        if (!doc) {
-          document.body.innerHTML = '<h2 style="text-align:center;">🚫 Токен не найден</h2>';
-          return;
-        }
-
-        const savedFingerprint = doc.fingerprint?.stringValue || null;
-
-        if (!savedFingerprint) {
-          // Привязываем токен к fingerprint
-          fetch(`https://firestore.googleapis.com/v1/projects/linkup-instructions/databases/(default)/documents:patch?name=projects/linkup-instructions/databases/(default)/documents/access_tokens/${token}&updateMask.fieldPaths=fingerprint`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              fields: {
-                fingerprint: { stringValue: fingerprint }
-              }
-            })
-          }).then(() => init()); // запускаем сайт
-        } else if (savedFingerprint === fingerprint) {
+        if (data.access === "granted") {
           init(); // доступ разрешён
         } else {
           document.body.innerHTML = '<h2 style="text-align:center;">🚫 Доступ запрещён</h2>';
         }
+      })
+      .catch(err => {
+        console.error(err);
+        document.body.innerHTML = '<h2 style="text-align:center;">⚠️ Ошибка сервера</h2>';
       });
+    });
   });
-});
-
 });
