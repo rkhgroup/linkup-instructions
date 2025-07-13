@@ -139,5 +139,48 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTranslations();
   };
 
-  init();
+  // Проверка токена и fingerprint
+const urlParams = new URLSearchParams(window.location.search);
+const token = urlParams.get("token");
+
+if (!token) {
+  document.body.innerHTML = '<h2 style="text-align:center;">🚫 Нет токена доступа</h2>';
+  return;
+}
+
+FingerprintJS.load().then(fp => {
+  fp.get().then(result => {
+    const fingerprint = result.visitorId;
+
+    fetch(`https://firestore.googleapis.com/v1/projects/YOUR_PROJECT_ID/databases/(default)/documents/access_tokens/${token}`)
+      .then(res => res.json())
+      .then(data => {
+        const doc = data.fields;
+        if (!doc) {
+          document.body.innerHTML = '<h2 style="text-align:center;">🚫 Токен не найден</h2>';
+          return;
+        }
+
+        const savedFingerprint = doc.fingerprint?.stringValue || null;
+
+        if (!savedFingerprint) {
+          // Привязываем токен к fingerprint
+          fetch(`https://firestore.googleapis.com/v1/projects/YOUR_PROJECT_ID/databases/(default)/documents/access_tokens/${token}?updateMask.fieldPaths=fingerprint`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fields: {
+                fingerprint: { stringValue: fingerprint }
+              }
+            })
+          }).then(() => init()); // запускаем сайт
+        } else if (savedFingerprint === fingerprint) {
+          init(); // доступ разрешён
+        } else {
+          document.body.innerHTML = '<h2 style="text-align:center;">🚫 Доступ запрещён</h2>';
+        }
+      });
+  });
+});
+
 });
