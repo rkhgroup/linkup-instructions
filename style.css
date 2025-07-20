@@ -265,3 +265,24 @@ h1, h2, h3 {
   border-radius: 8px;
 
 }
+
+.start-screen {
+  text-align: center;
+  padding: 60px 20px 40px;
+}
+
+.start-logo {
+  width: 100px;
+  margin-bottom: 20px;
+}
+
+.start-title {
+  font-size: 24px;
+  color: #0d1b3f;
+  margin-bottom: 10px;
+}
+
+.start-subtitle {
+  font-size: 16px;
+  color: #4a4a4a;
+}
