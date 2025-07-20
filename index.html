@@ -16,41 +16,41 @@
 </head>
 <body>
   <div class="container">
+    <!-- Стартовый экран -->
+    <div id="start-screen" class="start-screen">
+      <img src="./images/logo.png" alt="LinkUP Logo" class="start-logo" />
+      <h1 class="start-title">Инструкции по замкам</h1>
+      <p class="start-subtitle">Поддержка всех моделей от LinkUP</p>
+    </div>
+
     <!-- Поиск -->
-    <div class="search-wrapper">
-        <label for="search" id="search-label" class="search-label">Найти свою модель замка:</label>
-        <input id="search" type="text" placeholder="Поиск по модели..." class="search" />
-        <ul id="search-suggestions" class="suggestions"></ul>
+    <div class="search-wrapper" style="display: none;">
+      <label for="search" id="search-label" class="search-label">Найти свою модель замка:</label>
+      <input id="search" type="text" placeholder="Поиск по модели..." class="search" />
+      <ul id="search-suggestions" class="suggestions"></ul>
     </div>
 
     <!-- Информация о замке -->
-    <div class="lock-header">
-        <div class="lock-info">
-          <h1 id="lock-name">Kaadas S500 KZ</h1>
-          <div id="lock-application" class="lock-application"></div>
-        </div>
-        <img id="lock-img" src="..." alt="Замок" class="lock-image" />
+    <div class="lock-header" style="display: none;">
+      <div class="lock-info">
+        <h1 id="lock-name"></h1>
+        <div id="lock-application" class="lock-application"></div>
+      </div>
+      <img id="lock-img" src="" alt="Замок" class="lock-image" />
     </div>
 
-
     <!-- Переключение языка -->
-    <div class="lang-switch">
+    <div class="lang-switch" style="display: none;">
       <button id="lang-ru" class="lang-btn active">Русский</button>
       <button id="lang-kz" class="lang-btn">Қазақша</button>
     </div>
 
-    <!-- Интеграция YouTube видео -->
-    <iframe id="lock-video" class="lock-video" width="100%" height="200" src="https://www.youtube.com/embed/jzcpMUZyciE" frameborder="0" allowfullscreen></iframe>
+    <!-- Видео и инструкция -->
+    <iframe id="lock-video" class="lock-video" style="display: none;"></iframe>
 
-    <!-- Инструкция -->
-    <h3 id="instruction-title" class="instruction-title">Инструкция:</h3>
-    <ul class="instructions" id="instructions-list"></ul>
-
-    <!-- Кнопки PDF -->
-    <!--<div class="pdf-buttons">
-      <button id="pdf-ru" class="pdf-btn">Русский PDF</button>
-      <button id="pdf-kz" class="pdf-btn active">Қазақша PDF</button>
-    </div> -->
-  </div> 
+    <h3 id="instruction-title" class="instruction-title" style="display: none;">Инструкция:</h3>
+    <ul class="instructions" id="instructions-list" style="display: none;"></ul>
+  </div>
 </body>
+
 </html>
