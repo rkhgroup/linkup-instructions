@@ -72,6 +72,15 @@ async function init() {
 
 // Отображение информации о замке
 function renderLock() {
+  // Скрываем стартовый экран и показываем остальные элементы
+  document.getElementById('start-screen').style.display = 'none';
+  document.querySelector('.search-wrapper').style.display = 'block';
+  document.querySelector('.lock-header').style.display = 'flex';
+  document.querySelector('.lang-switch').style.display = 'flex';
+  document.getElementById('lock-video').style.display = 'block';
+  document.getElementById('instruction-title').style.display = 'block';
+  document.getElementById('instructions-list').style.display = 'block';
+
   document.getElementById('lock-name').innerText = currentLock.name[currentLang];
   const applicationEl = document.getElementById('lock-application');
   applicationEl.innerText = currentLock.application?.[currentLang] || '';
@@ -112,10 +121,10 @@ function renderLock() {
 
     li.appendChild(titleDiv);
     li.appendChild(contentDiv);
-
     list.appendChild(li);
   });
 }
+
 
 // Инициализация после загрузки DOM
 document.addEventListener('DOMContentLoaded', () => {
