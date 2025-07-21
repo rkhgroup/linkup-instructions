@@ -16,20 +16,19 @@
 </head>
 <body>
   <div class="container">
-    <!-- Стартовый экран -->
-   <!-- Стартовый экран с поиском -->
-<div id="start-screen" class="start-screen">
-  <img src="./images/logo.png" alt="LinkUP Logo" class="start-logo" />
-  <h1 class="start-title">Инструкции по замкам</h1>
-  <p class="start-subtitle">Поддержка всех моделей от LinkUP</p>
+    <!-- Стартовый экран с поиском -->
+    <div id="start-screen" class="start-screen">
+      <img src="./images/logo.png" alt="LinkUP Logo" class="start-logo" />
+      <h1 class="start-title">Инструкции по замкам</h1>
+      <p class="start-subtitle">Поддержка всех моделей от LinkUP</p>
 
-  <!-- Поиск прямо на стартовом экране -->
-  <div class="search-wrapper">
-    <label for="search" id="search-label" class="search-label">Найти свою модель замка:</label>
-    <input id="search" type="text" placeholder="Поиск по модели..." class="search" />
-    <ul id="search-suggestions" class="suggestions"></ul>
-  </div>
-</div>
+      <!-- Поиск прямо на стартовом экране -->
+      <div class="search-wrapper">
+        <label for="search" id="search-label" class="search-label">Найти свою модель замка:</label>
+        <input id="search" type="text" placeholder="Поиск по модели..." class="search" />
+        <ul id="search-suggestions" class="suggestions"></ul>
+      </div>
+    </div>
 
     <!-- Информация о замке -->
     <div class="lock-header" style="display: none;">
@@ -46,12 +45,12 @@
       <button id="lang-kz" class="lang-btn">Қазақша</button>
     </div>
 
-    <!-- Видео и инструкция -->
-    <iframe id="lock-video" class="lock-video" style="display: none;"></iframe>
+    <!-- Видео -->
+    <iframe id="lock-video" class="lock-video" style="display: none;" allowfullscreen></iframe>
 
+    <!-- Инструкция -->
     <h3 id="instruction-title" class="instruction-title" style="display: none;">Инструкция:</h3>
     <ul class="instructions" id="instructions-list" style="display: none;"></ul>
   </div>
 </body>
-
 </html>
