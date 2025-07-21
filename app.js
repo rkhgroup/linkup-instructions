@@ -17,11 +17,11 @@ function applyTranslations() {
   }
 }
 
-// Загружаем данные всех замков
+// Загрузка данных замков и настройка поиска
 async function init() {
   const res = await fetch(`./data/locks.json`);
   locks = await res.json();
-  applyTranslations(); // просто применим переводы, без отображения замка
+  applyTranslations(); // только переводы, без отображения замка
 
   const searchInput = document.getElementById('search');
   const suggestionsEl = document.getElementById('search-suggestions');
@@ -47,25 +47,27 @@ async function init() {
     matches.forEach(lock => {
       const li = document.createElement('li');
       li.textContent = lock.name[currentLang];
-li.onclick = () => {
-  currentLock = lock;
 
-  // Скрываем стартовый экран
-  document.getElementById('start-screen').style.display = 'none';
+      li.onclick = () => {
+        currentLock = lock;
 
-  // Показываем остальные элементы
-  document.querySelector('.search-wrapper').style.display = 'block';
-  document.querySelector('.lock-header').style.display = 'flex';
-  document.querySelector('.lang-switch').style.display = 'flex';
-  document.getElementById('lock-video').style.display = 'block';
-  document.getElementById('instruction-title').style.display = 'block';
-  document.getElementById('instructions-list').style.display = 'block';
+        // Скрываем стартовый экран
+        document.getElementById('start-screen').style.display = 'none';
 
-  renderLock();
-  searchInput.value = '';
-  suggestionsEl.innerHTML = '';
-  suggestionsEl.style.display = 'none';
-};
+        // Показываем остальную часть интерфейса
+        document.querySelector('.search-wrapper').style.display = 'block';
+        document.querySelector('.lock-header').style.display = 'flex';
+        document.querySelector('.lang-switch').style.display = 'flex';
+        document.getElementById('lock-video').style.display = 'block';
+        document.getElementById('instruction-title').style.display = 'block';
+        document.getElementById('instructions-list').style.display = 'block';
+
+        renderLock();
+        searchInput.value = '';
+        suggestionsEl.innerHTML = '';
+        suggestionsEl.style.display = 'none';
+      };
+
       suggestionsEl.appendChild(li);
     });
 
@@ -80,16 +82,9 @@ li.onclick = () => {
   });
 }
 
-// Отображение информации о замке
+// Отображение выбранного замка
 function renderLock() {
-  // Скрываем стартовый экран и показываем остальные элементы
-  document.getElementById('start-screen').style.display = 'none';
-  document.querySelector('.search-wrapper').style.display = 'block';
-  document.querySelector('.lock-header').style.display = 'flex';
-  document.querySelector('.lang-switch').style.display = 'flex';
-  document.getElementById('lock-video').style.display = 'block';
-  document.getElementById('instruction-title').style.display = 'block';
-  document.getElementById('instructions-list').style.display = 'block';
+  if (!currentLock) return;
 
   document.getElementById('lock-name').innerText = currentLock.name[currentLang];
   const applicationEl = document.getElementById('lock-application');
@@ -114,7 +109,6 @@ function renderLock() {
 
     if (steps.length > 1) {
       const ol = document.createElement('ol');
-      ol.style.paddingLeft = '0px';
       steps.forEach(step => {
         const liStep = document.createElement('li');
         liStep.textContent = step;
@@ -135,23 +129,22 @@ function renderLock() {
   });
 }
 
-
-// Инициализация после загрузки DOM
+// После загрузки страницы
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('lang-ru').onclick = () => {
     currentLang = 'ru';
     document.getElementById('lang-ru').classList.add('active');
     document.getElementById('lang-kz').classList.remove('active');
-    renderLock();
     applyTranslations();
+    if (currentLock) renderLock(); // Показываем замок только если выбран
   };
 
   document.getElementById('lang-kz').onclick = () => {
     currentLang = 'kz';
     document.getElementById('lang-kz').classList.add('active');
     document.getElementById('lang-ru').classList.remove('active');
-    renderLock();
     applyTranslations();
+    if (currentLock) renderLock(); // Показываем замок только если выбран
   };
 
   // Проверка токена и fingerprint
