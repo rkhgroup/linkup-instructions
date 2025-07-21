@@ -289,3 +289,16 @@ h1, h2, h3 {
   margin-bottom: 30px;
 }
 
+/* Фикс для отображения поиска в стартовом экране */
+.start-screen .search-wrapper {
+  max-width: 100%;
+  width: 100%;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.start-screen .search {
+  width: 100%;
+  box-sizing: border-box;
+}
+
