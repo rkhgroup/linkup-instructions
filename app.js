@@ -21,9 +21,7 @@ function applyTranslations() {
 async function init() {
   const res = await fetch(`./data/locks.json`);
   locks = await res.json();
-  currentLock = locks[0];
-  renderLock();
-  applyTranslations();
+  applyTranslations(); // просто применим переводы, без отображения замка
 
   const searchInput = document.getElementById('search');
   const suggestionsEl = document.getElementById('search-suggestions');
@@ -49,13 +47,25 @@ async function init() {
     matches.forEach(lock => {
       const li = document.createElement('li');
       li.textContent = lock.name[currentLang];
-      li.onclick = () => {
-        currentLock = lock;
-        renderLock();
-        searchInput.value = '';
-        suggestionsEl.innerHTML = '';
-        suggestionsEl.style.display = 'none';
-      };
+li.onclick = () => {
+  currentLock = lock;
+
+  // Скрываем стартовый экран
+  document.getElementById('start-screen').style.display = 'none';
+
+  // Показываем остальные элементы
+  document.querySelector('.search-wrapper').style.display = 'block';
+  document.querySelector('.lock-header').style.display = 'flex';
+  document.querySelector('.lang-switch').style.display = 'flex';
+  document.getElementById('lock-video').style.display = 'block';
+  document.getElementById('instruction-title').style.display = 'block';
+  document.getElementById('instructions-list').style.display = 'block';
+
+  renderLock();
+  searchInput.value = '';
+  suggestionsEl.innerHTML = '';
+  suggestionsEl.style.display = 'none';
+};
       suggestionsEl.appendChild(li);
     });
 
