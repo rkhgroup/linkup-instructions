@@ -1592,7 +1592,7 @@
     "ru": "TTLock",
     "kz": "TTLock"
     },
-    "image": "linkup-a-408.png",
+    "image": "a-408.png",
     "video": "https://www.youtube.com/embed/QinkOoqtGbE?list=PLoVxc4ofETMlrLDg0ytKL-5Xq190jBeRu&index=33",
     "instructions": {
       "ru": [
@@ -1863,6 +1863,7 @@
     }
   }
 ]
+
 
 
 
