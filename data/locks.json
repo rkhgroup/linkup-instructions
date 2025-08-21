@@ -1630,7 +1630,7 @@
     "kz": "TTLock"
     },
     "image": "С001С.png",
-    "video": "https://youtube.com/shorts/KHnDhrn6qLQ",
+    "video": "https://www.youtube.com/embed/KHnDhrn6qLQ?list=PLoVxc4ofETMlrLDg0ytKL-5Xq190jBeRu&index=34",
     "instructions": {
       "ru": [
         { "title": "Как добавить пин код", "hint": "Открываем приложение TTLock - Выбираем необходимый замок - Выбираем Коды - Выбираем тип кода (временный,постоянный или одноразовый) - Прописываем код" },
@@ -1863,6 +1863,7 @@
     }
   }
 ]
+
 
 
 
