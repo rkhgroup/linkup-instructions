@@ -1059,7 +1059,7 @@
     "kz": "Tuya Smart"
     },
     "image": "philips-easykey-608.png",
-    "video": "https://youtu.be/4_dwYeYeUvw",
+    "video": "https://www.youtube.com/embed/4_dwYeYeUvw?list=PLoVxc4ofETMlrLDg0ytKL-5Xq190jBeRu&index=31",
     "instructions": {
       "ru": [
         { "title": "Вход в меню настроек", "hint": "Удерживаем кнопку # - Вводим мастер пин код #" },
@@ -1863,6 +1863,7 @@
     }
   }
 ]
+
 
 
 
