@@ -1280,7 +1280,7 @@
     "kz": "Tuya Smart"
     },
     "image": "linkup-a-918.png",
-    "video": "https://youtu.be/4DgN20r3mSM",
+    "video": "https://www.youtube.com/embed/4DgN20r3mSM?list=PLoVxc4ofETMlrLDg0ytKL-5Xq190jBeRu&index=32",
     "instructions": {
       "ru": [
         { "title": "Вход в меню настроек", "hint": "Набираем на замке * # Мастер пин код #" },
@@ -1556,7 +1556,7 @@
     "kz": "TTLock"
     },
     "image": "linkup-h-168.png",
-    "video": "https://youtube.com/shorts/EJx8p70vtDQ",
+    "video": "https://www.youtube.com/embed/EJx8p70vtDQ?list=PLoVxc4ofETMlrLDg0ytKL-5Xq190jBeRu&index=35",
     "instructions": {
       "ru": [
         { "title": "Как добавить пин код", "hint": "Открываем приложение TTLock - Выбираем необходимый замок - Выбираем Коды - Выбираем тип кода (временный,постоянный или одноразовый) - Прописываем код" },
@@ -1832,7 +1832,7 @@
     "kz": "Philips Home Access"
     },
     "image": "philips-801.png",
-    "video": "https://youtu.be/jRffBQaOvhU",
+    "video": "https://www.youtube.com/embed/jRffBQaOvhU?list=PLoVxc4ofETMlrLDg0ytKL-5Xq190jBeRu&index=30",
     "instructions": {
       "ru": [
         { "title": "Вход в меню настроек", "hint": "Набираем на замке * * Мастер пин код #" },
@@ -1863,6 +1863,7 @@
     }
   }
 ]
+
 
 
 
