@@ -1478,7 +1478,7 @@
     "kz": "Tuya Smart"
     },
     "image": "linkup-a-610.png",
-    "video": "",
+    "video": "https://www.youtube.com/embed/xpMdolKn1jM",
     "instructions": {
       "ru": [
         { "title": "Вход в меню настроек", "hint": "Набираем на замке * # Мастер пин код #" },
@@ -1905,6 +1905,7 @@
     }
   }
 ]
+
 
 
 
