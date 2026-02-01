@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LinkUP Admin Login</title>
+  <style>
+    body{font-family:system-ui;max-width:420px;margin:70px auto;padding:0 16px}
+    .card{border:1px solid #e5e7eb;border-radius:14px;padding:16px}
+    input{width:100%;padding:10px;margin:8px 0;border:1px solid #e5e7eb;border-radius:10px}
+    button{padding:10px 14px;width:100%;border:0;border-radius:10px;cursor:pointer}
+    .err{color:#b00020;margin-top:10px}
+    .muted{color:#64748b;font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 style="margin:0 0 8px">Вход в админку</h2>
+    <div class="muted">Только для сотрудников</div>
+
+    <input id="login" placeholder="Логин" autocomplete="username" />
+    <input id="pass" type="password" placeholder="Пароль" autocomplete="current-password" />
+    <button id="btn">Войти</button>
+
+    <div id="err" class="err"></div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
