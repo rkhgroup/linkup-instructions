@@ -101,9 +101,13 @@
   </div>
 
   <div class="card">
-    <h3 style="margin-top:0">Список замков</h3>
-    <div id="list" class="muted">Загрузка...</div>
+  <div class="row" style="align-items:center;justify-content:space-between">
+    <h3 style="margin:0">Список замков</h3>
+    <input id="listSearch" placeholder="Поиск по списку (id / название / приложение)..." style="max-width:420px" />
   </div>
+  <div id="list" class="muted">Загрузка...</div>
+  </div>
+
 
   <script type="module">
     // 0) if/else gate
@@ -138,6 +142,10 @@
     const listEl = document.getElementById("list");
     const ruStepsEl = document.getElementById("ruSteps");
     const kzStepsEl = document.getElementById("kzSteps");
+    const listSearchEl = document.getElementById("listSearch");
+    let allLocks = []; // кеш списка для поиска
+    listSearchEl.addEventListener("input", () => renderList());
+
 
     function v(id){ return document.getElementById(id).value.trim(); }
     function sv(id, value){ document.getElementById(id).value = value ?? ""; }
@@ -175,13 +183,28 @@
       });
     }
 
-    function addStep(lang, step){
-      const container = lang === "ru" ? ruStepsEl : kzStepsEl;
-      const el = stepRow(lang, container.children.length, step);
-      container.appendChild(el);
-      bindStepButtons(container);
-      renumber(container);
-    }
+    function addStep(lang, step, opts = { atTop: true }){
+  const container = lang === "ru" ? ruStepsEl : kzStepsEl;
+
+  // idx пока временный — потом renumber всё поправит
+  const el = stepRow(lang, 0, step);
+
+  if (opts.atTop) {
+    container.insertBefore(el, container.firstChild);
+  } else {
+    container.appendChild(el);
+  }
+
+  bindStepButtons(container);
+  renumber(container);
+
+  if (opts.atTop) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    const firstInput = el.querySelector("[data-title]");
+    if (firstInput) firstInput.focus();
+  }
+}
+
 
     function bindStepButtons(container){
       [...container.querySelectorAll(".step")].forEach((stepEl) => {
@@ -264,6 +287,10 @@
       const items = snap.docs.map(d => ({ docId: d.id, ...d.data() }))
         .sort((a,b) => (a.docId||"").localeCompare(b.docId||""));
 
+        allLocks = items;
+        renderList();
+
+
       if (!items.length) {
         listEl.innerHTML = "<div class='muted'>Пока пусто.</div>";
         return;
@@ -317,6 +344,72 @@
         };
       });
     }
+
+    function renderList(){
+  const q = (listSearchEl?.value || "").trim().toLowerCase();
+
+  const items = !q ? allLocks : allLocks.filter(x => {
+    const id = (x.docId || "").toLowerCase();
+    const name = (x?.name?.ru || x?.name?.kz || "").toLowerCase();
+    const app = (x?.application?.ru || x?.application?.kz || "").toLowerCase();
+    return id.includes(q) || name.includes(q) || app.includes(q);
+  });
+
+  if (!items.length) {
+    listEl.innerHTML = "<div class='muted'>Ничего не найдено.</div>";
+    return;
+  }
+
+  listEl.innerHTML = items.map(x => `
+    <div class="item">
+      <div><b class="mono">${x.docId}</b> — ${x?.name?.ru ?? ""}</div>
+      <div class="muted">${x?.application?.ru ?? ""}</div>
+      <div class="row" style="margin-top:10px">
+        <button data-edit="${x.docId}" class="ghost">Редактировать</button>
+        <button data-del="${x.docId}" class="danger">Удалить</button>
+      </div>
+    </div>
+  `).join("");
+
+  // обработчики после рендера (важно!)
+  listEl.querySelectorAll("[data-edit]").forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.getAttribute("data-edit");
+      const snap = await getDoc(doc(db, "locks", id));
+      if (!snap.exists()) return;
+      const lock = snap.data();
+
+      sv("id", id);
+      sv("nameRu", lock?.name?.ru);
+      sv("nameKz", lock?.name?.kz);
+      sv("appRu", lock?.application?.ru);
+      sv("appKz", lock?.application?.kz);
+      sv("image", lock?.image);
+      sv("video", lock?.video);
+      sv("pdfRu", lock?.pdf?.ru);
+      sv("pdfKz", lock?.pdf?.kz);
+
+      ruStepsEl.innerHTML = "";
+      kzStepsEl.innerHTML = "";
+      (lock?.instructions?.ru ?? []).forEach(s => addStep("ru", s, { atTop: false }));
+      (lock?.instructions?.kz ?? []).forEach(s => addStep("kz", s, { atTop: false }));
+
+      statusEl.textContent = `Загружено: ${id}`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+  });
+
+  listEl.querySelectorAll("[data-del]").forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.getAttribute("data-del");
+      if (!confirm(`Удалить "${id}"?`)) return;
+      await deleteDoc(doc(db, "locks", id));
+      statusEl.textContent = `Удалено: ${id}`;
+      await loadList();
+    };
+  });
+}
+
 
     // старт
     await loadList();
