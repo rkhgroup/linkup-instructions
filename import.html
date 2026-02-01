@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LinkUP Import Locks</title>
+  <style>
+    body{font-family:system-ui;max-width:900px;margin:30px auto;padding:0 16px}
+    .card{border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin:14px 0}
+    button{padding:10px 14px;border:0;border-radius:10px;cursor:pointer}
+    .primary{background:#2563eb;color:#fff}
+    .ghost{background:#f1f5f9}
+    .muted{color:#64748b;font-size:14px}
+    pre{background:#0b1220;color:#e5e7eb;padding:12px;border-radius:12px;overflow:auto}
+  </style>
+</head>
+<body>
+  <h1 style="margin:0">Импорт locks.json → Firestore</h1>
+  <div class="muted">Одноразовая страница. После импорта лучше удалить её из репо.</div>
+
+  <div class="card">
+    <button id="loadBtn" class="ghost">1) Проверить, что locks.json читается</button>
+    <button id="importBtn" class="primary" disabled>2) Импортировать в Firestore</button>
+    <div id="status" class="muted" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <div class="muted">Лог</div>
+    <pre id="log"></pre>
+  </div>
+
+  <script type="module">
+    // Базовая "защита" (как у админки)
+    if (localStorage.getItem("linkup_admin_ok") !== "1") {
+      document.body.innerHTML = "<h2>Нет доступа. Сначала войди через admin.html</h2>";
+      throw new Error("not authorized");
+    }
+
+    // Firebase config (тот же, что в panel)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAL-CkU7rfpKrAMUWcOPo_dESRYrjMeW4A",
+      authDomain: "linkup-instructions.firebaseapp.com",
+      projectId: "linkup-instructions",
+      storageBucket: "linkup-instructions.firebasestorage.app",
+      messagingSenderId: "690601143430",
+      appId: "1:690601143430:web:74d0a08b01dc2e4fce7507",
+      measurementId: "G-0KY2H78TD6"
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      writeBatch
+    } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const loadBtn = document.getElementById("loadBtn");
+    const importBtn = document.getElementById("importBtn");
+    const statusEl = document.getElementById("status");
+    const logEl = document.getElementById("log");
+
+    let locks = null;
+
+    function log(line){
+      logEl.textContent += line + "\n";
+    }
+
+    async function fetchJson() {
+      // Важно: путь должен совпадать с твоим репо
+      const res = await fetch("./data/locks.json", { cache: "no-store" });
+      if (!res.ok) throw new Error(`Не удалось прочитать ./data/locks.json (HTTP ${res.status})`);
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("locks.json должен быть массивом");
+      return data;
+    }
+
+    function validateLock(lock, idx){
+      if (!lock || typeof lock !== "object") throw new Error(`Запись #${idx} не объект`);
+      if (!lock.id) throw new Error(`Запись #${idx} без id`);
+      if (!lock.name?.ru && !lock.name?.kz) throw new Error(`Запись #${idx} (${lock.id}) без name.ru/name.kz`);
+      if (!lock.instructions?.ru || !lock.instructions?.kz) throw new Error(`Запись #${idx} (${lock.id}) без instructions.ru/instructions.kz`);
+    }
+
+    loadBtn.onclick = async () => {
+      try {
+        statusEl.textContent = "Читаю locks.json...";
+        logEl.textContent = "";
+        locks = await fetchJson();
+
+        // минимальная проверка первых 3 и общего размера
+        log(`Найдено записей: ${locks.length}`);
+        locks.slice(0, 3).forEach((x,i) => log(`Пример #${i+1}: id=${x.id}`));
+
+        // полная валидация
+        locks.forEach(validateLock);
+
+        statusEl.textContent = `Ок ✅ locks.json прочитан и валиден. Записей: ${locks.length}`;
+        importBtn.disabled = false;
+      } catch (e) {
+        statusEl.textContent = `Ошибка: ${e.message}`;
+        importBtn.disabled = true;
+      }
+    };
+
+    importBtn.onclick = async () => {
+      try {
+        if (!locks) throw new Error("Сначала нажми «Проверить, что locks.json читается»");
+        if (!confirm(`Импортировать ${locks.length} замков в Firestore (коллекция locks)?`)) return;
+
+        statusEl.textContent = "Импортирую...";
+
+        // Firestore batch лимит: 500 операций.
+        // У тебя ~50, но делаем универсально.
+        const CHUNK = 450;
+
+        let done = 0;
+        for (let i = 0; i < locks.length; i += CHUNK) {
+          const chunk = locks.slice(i, i + CHUNK);
+          const batch = writeBatch(db);
+
+          chunk.forEach(lock => {
+            const ref = doc(db, "locks", lock.id);
+            batch.set(ref, lock, { merge: true });
+          });
+
+          await batch.commit();
+          done += chunk.length;
+          log(`Импортировано: ${done}/${locks.length}`);
+          statusEl.textContent = `Импортировано: ${done}/${locks.length}`;
+        }
+
+        statusEl.textContent = `Готово ✅ Импортировано ${locks.length} записей.`;
+        log("DONE ✅");
+
+      } catch (e) {
+        statusEl.textContent = `Ошибка импорта: ${e.message}`;
+        log(`ERROR: ${e.message}`);
+      }
+    };
+  </script>
+</body>
+</html>
