@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LinkUP Admin Panel</title>
+  <style>
+    body{font-family:system-ui;max-width:1100px;margin:30px auto;padding:0 16px}
+    .top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .card{border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin:14px 0}
+    input, textarea{width:100%;padding:10px;margin:6px 0;border:1px solid #e5e7eb;border-radius:10px}
+    button{padding:10px 14px;border:0;border-radius:10px;cursor:pointer}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .col{flex:1;min-width:320px}
+    .muted{color:#64748b;font-size:14px}
+    .danger{background:#ef4444;color:white}
+    .primary{background:#2563eb;color:white}
+    .ghost{background:#f1f5f9}
+    .item{border:1px solid #e5e7eb;border-radius:12px;padding:12px;margin:10px 0}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  </style>
+</head>
+<body>
+  <div class="top">
+    <div>
+      <h1 style="margin:0">Админ-панель LinkUP</h1>
+      <div class="muted">CRUD по замкам в Firestore</div>
+    </div>
+    <div class="row">
+      <button id="logoutBtn" class="ghost">Выйти</button>
+      <a href="./" class="muted">← На сайт</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Firebase config</h3>
+    <div class="muted">Вставь сюда config из Firebase → Project settings → Web app</div>
+    <textarea id="fbConfig" rows="8" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea>
+    <button id="saveConfig" class="primary">Сохранить config</button>
+    <div id="cfgStatus" class="muted"></div>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="card">
+      <h3 style="margin-top:0">Создать / обновить замок</h3>
+
+      <div class="row">
+        <div class="col">
+          <div class="muted">id (и Document ID)</div>
+          <input id="id" placeholder="kaadas-s500" />
+
+          <div class="muted">Название RU</div>
+          <input id="nameRu" />
+          <div class="muted">Название KZ</div>
+          <input id="nameKz" />
+
+          <div class="muted">Application RU</div>
+          <input id="appRu" />
+          <div class="muted">Application KZ</div>
+          <input id="appKz" />
+
+          <div class="muted">image (файл в /images)</div>
+          <input id="image" placeholder="kaadas-s500.png" />
+
+          <div class="muted">video (embed url)</div>
+          <input id="video" />
+        </div>
+
+        <div class="col">
+          <div class="muted">PDF RU (опц.)</div>
+          <input id="pdfRu" placeholder="pdf/xxx-ru.pdf" />
+          <div class="muted">PDF KZ (опц.)</div>
+          <input id="pdfKz" placeholder="pdf/xxx-kz.pdf" />
+
+          <div class="muted">Инструкции RU (JSON массив)</div>
+          <textarea id="instrRu" rows="10" placeholder='[{"title":"...","hint":"..."}]'></textarea>
+
+          <div class="muted">Инструкции KZ (JSON массив)</div>
+          <textarea id="instrKz" rows="10" placeholder='[{"title":"...","hint":"..."}]'></textarea>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <button id="save" class="primary">Сохранить</button>
+        <button id="clear" class="ghost">Очистить</button>
+        <div id="status" class="muted"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Список замков</h3>
+      <div id="list" class="muted">Загрузка...</div>
+    </div>
+  </div>
+
+  <script type="module" src="panel.js"></script>
+</body>
+</html>
