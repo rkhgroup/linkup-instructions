@@ -143,7 +143,8 @@
     const kzStepsEl = document.getElementById("kzSteps");
     const listSearchEl = document.getElementById("listSearch");
     let allLocks = []; // кеш списка для поиска
-    listSearchEl.addEventListener("input", () => renderList());
+    if (listSearchEl) listSearchEl.addEventListener("input", () => renderList());
+
 
 
     function v(id){ return document.getElementById(id).value.trim(); }
@@ -288,7 +289,6 @@
 
     document.getElementById("addRu").onclick = () => addStep("ru", {title:"", hint:""});
     document.getElementById("addKz").onclick = () => addStep("kz", {title:"", hint:""});
-    document.getElementById("clear").onclick = clearForm;
 
     document.getElementById("save").onclick = async () => {
       try {
@@ -322,68 +322,15 @@
     };
 
     async function loadList(){
-      listEl.textContent = "Загрузка...";
-      const snap = await getDocs(collection(db, "locks"));
-      const items = snap.docs.map(d => ({ docId: d.id, ...d.data() }))
-        .sort((a,b) => (a.docId||"").localeCompare(b.docId||""));
+  listEl.textContent = "Загрузка...";
+  const snap = await getDocs(collection(db, "locks"));
+  const items = snap.docs.map(d => ({ docId: d.id, ...d.data() }))
+    .sort((a,b) => (a.docId||"").localeCompare(b.docId||""));
 
-        allLocks = items;
-        renderList();
+  allLocks = items;
+  renderList();
+}
 
-
-      if (!items.length) {
-        listEl.innerHTML = "<div class='muted'>Пока пусто.</div>";
-        return;
-      }
-
-      listEl.innerHTML = items.map(x => `
-        <div class="item">
-          <div><b class="mono">${x.docId}</b> — ${x?.name?.ru ?? ""}</div>
-          <div class="muted">${x?.application?.ru ?? ""}</div>
-          <div class="row" style="margin-top:10px">
-            <button data-edit="${x.docId}" class="ghost">Редактировать</button>
-            <button data-del="${x.docId}" class="danger">Удалить</button>
-          </div>
-        </div>
-      `).join("");
-
-      listEl.querySelectorAll("[data-edit]").forEach(btn => {
-        btn.onclick = async () => {
-          const id = btn.getAttribute("data-edit");
-          const snap = await getDoc(doc(db, "locks", id));
-          if (!snap.exists()) return;
-          const lock = snap.data();
-
-          sv("id", id);
-          sv("nameRu", lock?.name?.ru);
-          sv("nameKz", lock?.name?.kz);
-          sv("appRu", lock?.application?.ru);
-          sv("appKz", lock?.application?.kz);
-          sv("image", lock?.image);
-          sv("video", lock?.video);
-          sv("pdfRu", lock?.pdf?.ru);
-          sv("pdfKz", lock?.pdf?.kz);
-
-          ruStepsEl.innerHTML = "";
-          kzStepsEl.innerHTML = "";
-          (lock?.instructions?.ru ?? []).forEach(s => addStep("ru", s));
-          (lock?.instructions?.kz ?? []).forEach(s => addStep("kz", s));
-
-          statusEl.textContent = `Загружено: ${id}`;
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        };
-      });
-
-      listEl.querySelectorAll("[data-del]").forEach(btn => {
-        btn.onclick = async () => {
-          const id = btn.getAttribute("data-del");
-          if (!confirm(`Удалить "${id}"?`)) return;
-          await deleteDoc(doc(db, "locks", id));
-          statusEl.textContent = `Удалено: ${id}`;
-          await loadList();
-        };
-      });
-    }
 
     function renderList(){
   const q = (listSearchEl?.value || "").trim().toLowerCase();
