@@ -228,6 +228,47 @@
       });
     }
 
+    function toYouTubeEmbed(url) {
+  const s = (url || "").trim();
+  if (!s) return "";
+
+  // уже embed
+  if (s.includes("youtube.com/embed/")) return s;
+
+  try {
+    const u = new URL(s);
+
+    // youtu.be/VIDEO_ID
+    if (u.hostname === "youtu.be") {
+      const id = u.pathname.replace("/", "");
+      if (!id) return s;
+      return `https://www.youtube.com/embed/${id}`;
+    }
+
+    // youtube.com/watch?v=VIDEO_ID
+    if (u.hostname.includes("youtube.com")) {
+      // shorts
+      if (u.pathname.startsWith("/shorts/")) {
+        const id = u.pathname.split("/shorts/")[1]?.split("/")[0];
+        if (!id) return s;
+        return `https://www.youtube.com/embed/${id}`;
+      }
+
+      const id = u.searchParams.get("v");
+      if (id) {
+        // сохраняем плейлист, если он был
+        const list = u.searchParams.get("list");
+        return `https://www.youtube.com/embed/${id}${list ? `?list=${list}` : ""}`;
+      }
+    }
+
+    return s; // неизвестный формат — не трогаем
+  } catch {
+    return s; // не URL — не трогаем
+  }
+}
+
+
     function readSteps(container){
       const steps = [];
       [...container.querySelectorAll(".step")].forEach(stepEl => {
@@ -260,7 +301,7 @@
           name: { ru: v("nameRu"), kz: v("nameKz") },
           application: { ru: v("appRu"), kz: v("appKz") },
           image: v("image"),
-          video: v("video"),
+          video: toYouTubeEmbed(v("video")),
           instructions: {
             ru: readSteps(ruStepsEl),
             kz: readSteps(kzStepsEl)
