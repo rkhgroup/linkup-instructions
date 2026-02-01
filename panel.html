@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>LinkUP Admin Panel</title>
   <style>
-    body{font-family:system-ui;max-width:1100px;margin:30px auto;padding:0 16px}
+    body{font-family:system-ui;max-width:1200px;margin:26px auto;padding:0 16px}
     .top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
     .card{border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin:14px 0}
     input, textarea{width:100%;padding:10px;margin:6px 0;border:1px solid #e5e7eb;border-radius:10px}
@@ -18,13 +18,19 @@
     .ghost{background:#f1f5f9}
     .item{border:1px solid #e5e7eb;border-radius:12px;padding:12px;margin:10px 0}
     .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+    .step{border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin:10px 0}
+    .stepHead{display:flex;gap:10px;align-items:center;justify-content:space-between}
+    .stepNum{font-weight:600}
+    .smallBtn{padding:8px 10px;border-radius:10px}
   </style>
 </head>
 <body>
   <div class="top">
     <div>
       <h1 style="margin:0">Админ-панель LinkUP</h1>
-      <div class="muted">CRUD по замкам в Firestore</div>
+      <div class="muted">Менеджерский интерфейс (без JSON)</div>
     </div>
     <div class="row">
       <button id="logoutBtn" class="ghost">Выйти</button>
@@ -33,66 +39,287 @@
   </div>
 
   <div class="card">
-    <h3 style="margin-top:0">Firebase config</h3>
-    <div class="muted">Вставь сюда config из Firebase → Project settings → Web app</div>
-    <textarea id="fbConfig" rows="8" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea>
-    <button id="saveConfig" class="primary">Сохранить config</button>
-    <div id="cfgStatus" class="muted"></div>
-  </div>
+    <h3 style="margin-top:0">Карточка замка</h3>
 
-  <div id="app" style="display:none">
-    <div class="card">
-      <h3 style="margin-top:0">Создать / обновить замок</h3>
+    <div class="grid">
+      <div>
+        <div class="muted">ID (и Document ID)</div>
+        <input id="id" placeholder="kaadas-s500" />
 
-      <div class="row">
-        <div class="col">
-          <div class="muted">id (и Document ID)</div>
-          <input id="id" placeholder="kaadas-s500" />
+        <div class="muted">Название RU</div>
+        <input id="nameRu" placeholder="Kaadas S500 KZ" />
+        <div class="muted">Название KZ</div>
+        <input id="nameKz" placeholder="Kaadas S500 KZ" />
 
-          <div class="muted">Название RU</div>
-          <input id="nameRu" />
-          <div class="muted">Название KZ</div>
-          <input id="nameKz" />
-
-          <div class="muted">Application RU</div>
-          <input id="appRu" />
-          <div class="muted">Application KZ</div>
-          <input id="appKz" />
-
-          <div class="muted">image (файл в /images)</div>
-          <input id="image" placeholder="kaadas-s500.png" />
-
-          <div class="muted">video (embed url)</div>
-          <input id="video" />
-        </div>
-
-        <div class="col">
-          <div class="muted">PDF RU (опц.)</div>
-          <input id="pdfRu" placeholder="pdf/xxx-ru.pdf" />
-          <div class="muted">PDF KZ (опц.)</div>
-          <input id="pdfKz" placeholder="pdf/xxx-kz.pdf" />
-
-          <div class="muted">Инструкции RU (JSON массив)</div>
-          <textarea id="instrRu" rows="10" placeholder='[{"title":"...","hint":"..."}]'></textarea>
-
-          <div class="muted">Инструкции KZ (JSON массив)</div>
-          <textarea id="instrKz" rows="10" placeholder='[{"title":"...","hint":"..."}]'></textarea>
-        </div>
+        <div class="muted">Приложение RU</div>
+        <input id="appRu" placeholder="Kaadas Smart" />
+        <div class="muted">Приложение KZ</div>
+        <input id="appKz" placeholder="Kaadas Smart" />
       </div>
 
-      <div class="row" style="margin-top:10px">
-        <button id="save" class="primary">Сохранить</button>
-        <button id="clear" class="ghost">Очистить</button>
-        <div id="status" class="muted"></div>
+      <div>
+        <div class="muted">Image (файл в /images)</div>
+        <input id="image" placeholder="kaadas-s500.png" />
+
+        <div class="muted">Video (YouTube embed)</div>
+        <input id="video" placeholder="https://www.youtube.com/embed/..." />
+
+        <div class="muted">PDF RU (опц.)</div>
+        <input id="pdfRu" placeholder="pdf/kaadas-s500-ru.pdf" />
+        <div class="muted">PDF KZ (опц.)</div>
+        <input id="pdfKz" placeholder="pdf/kaadas-s500-kz.pdf" />
       </div>
     </div>
 
-    <div class="card">
-      <h3 style="margin-top:0">Список замков</h3>
-      <div id="list" class="muted">Загрузка...</div>
+    <div class="row" style="margin-top:10px">
+      <button id="save" class="primary">Сохранить</button>
+      <button id="clear" class="ghost">Очистить</button>
+      <div id="status" class="muted"></div>
     </div>
   </div>
 
-  <script type="module" src="panel.js"></script>
+  <div class="card">
+    <div class="row" style="align-items:center;justify-content:space-between">
+      <div>
+        <h3 style="margin:0">Инструкции RU</h3>
+        <div class="muted">Добавляй пункты — система сама сделает JSON</div>
+      </div>
+      <button id="addRu" class="ghost">+ Добавить пункт</button>
+    </div>
+    <div id="ruSteps"></div>
+  </div>
+
+  <div class="card">
+    <div class="row" style="align-items:center;justify-content:space-between">
+      <div>
+        <h3 style="margin:0">Инструкции KZ</h3>
+        <div class="muted">Қадамдарды қосыңыз — JSON автоматты түрде жасалады</div>
+      </div>
+      <button id="addKz" class="ghost">+ Добавить пункт</button>
+    </div>
+    <div id="kzSteps"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Список замков</h3>
+    <div id="list" class="muted">Загрузка...</div>
+  </div>
+
+  <script type="module">
+    // 0) if/else gate
+    if (localStorage.getItem("linkup_admin_ok") !== "1") {
+      location.href = "admin.html";
+    }
+    document.getElementById("logoutBtn").onclick = () => {
+      localStorage.removeItem("linkup_admin_ok");
+      location.href = "admin.html";
+    };
+
+    // 1) Firebase config (вшит в код)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAL-CkU7rfpKrAMUWcOPo_dESRYrjMeW4A",
+      authDomain: "linkup-instructions.firebaseapp.com",
+      projectId: "linkup-instructions",
+      storageBucket: "linkup-instructions.firebasestorage.app",
+      messagingSenderId: "690601143430",
+      appId: "1:690601143430:web:74d0a08b01dc2e4fce7507",
+      measurementId: "G-0KY2H78TD6"
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import {
+      getFirestore, collection, doc, setDoc, deleteDoc, getDocs, getDoc
+    } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    const fbApp = initializeApp(firebaseConfig);
+    const db = getFirestore(fbApp);
+
+    const statusEl = document.getElementById("status");
+    const listEl = document.getElementById("list");
+    const ruStepsEl = document.getElementById("ruSteps");
+    const kzStepsEl = document.getElementById("kzSteps");
+
+    function v(id){ return document.getElementById(id).value.trim(); }
+    function sv(id, value){ document.getElementById(id).value = value ?? ""; }
+
+    function stepRow(lang, idx, step = { title:"", hint:"" }) {
+      const wrap = document.createElement("div");
+      wrap.className = "step";
+      wrap.dataset.lang = lang;
+
+      wrap.innerHTML = `
+        <div class="stepHead">
+          <div class="stepNum">Пункт ${idx + 1}</div>
+          <div class="row">
+            <button type="button" class="smallBtn ghost" data-up>↑</button>
+            <button type="button" class="smallBtn ghost" data-down>↓</button>
+            <button type="button" class="smallBtn danger" data-del>Удалить</button>
+          </div>
+        </div>
+        <div class="muted">Заголовок</div>
+        <input data-title value="${escapeHtml(step.title)}" />
+        <div class="muted">Подсказка / шаги</div>
+        <textarea data-hint rows="3">${escapeHtml(step.hint)}</textarea>
+      `;
+
+      return wrap;
+    }
+
+    function escapeHtml(s){
+      return (s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+    }
+
+    function renumber(container){
+      [...container.querySelectorAll(".step")].forEach((el, i) => {
+        el.querySelector(".stepNum").textContent = `Пункт ${i+1}`;
+      });
+    }
+
+    function addStep(lang, step){
+      const container = lang === "ru" ? ruStepsEl : kzStepsEl;
+      const el = stepRow(lang, container.children.length, step);
+      container.appendChild(el);
+      bindStepButtons(container);
+      renumber(container);
+    }
+
+    function bindStepButtons(container){
+      [...container.querySelectorAll(".step")].forEach((stepEl) => {
+        const up = stepEl.querySelector("[data-up]");
+        const down = stepEl.querySelector("[data-down]");
+        const del = stepEl.querySelector("[data-del]");
+
+        up.onclick = () => {
+          const prev = stepEl.previousElementSibling;
+          if (prev) container.insertBefore(stepEl, prev);
+          renumber(container);
+        };
+        down.onclick = () => {
+          const next = stepEl.nextElementSibling;
+          if (next) container.insertBefore(next, stepEl);
+          renumber(container);
+        };
+        del.onclick = () => {
+          stepEl.remove();
+          renumber(container);
+        };
+      });
+    }
+
+    function readSteps(container){
+      const steps = [];
+      [...container.querySelectorAll(".step")].forEach(stepEl => {
+        const title = stepEl.querySelector("[data-title]").value.trim();
+        const hint = stepEl.querySelector("[data-hint]").value.trim();
+        if (title || hint) steps.push({ title, hint });
+      });
+      return steps;
+    }
+
+    function clearForm(){
+      ["id","nameRu","nameKz","appRu","appKz","image","video","pdfRu","pdfKz"].forEach(k => sv(k,""));
+      ruStepsEl.innerHTML = "";
+      kzStepsEl.innerHTML = "";
+      statusEl.textContent = "";
+    }
+
+    document.getElementById("addRu").onclick = () => addStep("ru", {title:"", hint:""});
+    document.getElementById("addKz").onclick = () => addStep("kz", {title:"", hint:""});
+    document.getElementById("clear").onclick = clearForm;
+
+    document.getElementById("save").onclick = async () => {
+      try {
+        statusEl.textContent = "Сохранение...";
+        const id = v("id");
+        if (!id) throw new Error("Нужно заполнить ID");
+
+        const payload = {
+          id,
+          name: { ru: v("nameRu"), kz: v("nameKz") },
+          application: { ru: v("appRu"), kz: v("appKz") },
+          image: v("image"),
+          video: v("video"),
+          instructions: {
+            ru: readSteps(ruStepsEl),
+            kz: readSteps(kzStepsEl)
+          }
+        };
+
+        const pdfRu = v("pdfRu");
+        const pdfKz = v("pdfKz");
+        if (pdfRu || pdfKz) payload.pdf = { ru: pdfRu, kz: pdfKz };
+
+        await setDoc(doc(db, "locks", id), payload, { merge: true });
+
+        statusEl.textContent = `Сохранено: ${id}`;
+        await loadList();
+      } catch (e) {
+        statusEl.textContent = `Ошибка: ${e.message}`;
+      }
+    };
+
+    async function loadList(){
+      listEl.textContent = "Загрузка...";
+      const snap = await getDocs(collection(db, "locks"));
+      const items = snap.docs.map(d => ({ docId: d.id, ...d.data() }))
+        .sort((a,b) => (a.docId||"").localeCompare(b.docId||""));
+
+      if (!items.length) {
+        listEl.innerHTML = "<div class='muted'>Пока пусто.</div>";
+        return;
+      }
+
+      listEl.innerHTML = items.map(x => `
+        <div class="item">
+          <div><b class="mono">${x.docId}</b> — ${x?.name?.ru ?? ""}</div>
+          <div class="muted">${x?.application?.ru ?? ""}</div>
+          <div class="row" style="margin-top:10px">
+            <button data-edit="${x.docId}" class="ghost">Редактировать</button>
+            <button data-del="${x.docId}" class="danger">Удалить</button>
+          </div>
+        </div>
+      `).join("");
+
+      listEl.querySelectorAll("[data-edit]").forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.getAttribute("data-edit");
+          const snap = await getDoc(doc(db, "locks", id));
+          if (!snap.exists()) return;
+          const lock = snap.data();
+
+          sv("id", id);
+          sv("nameRu", lock?.name?.ru);
+          sv("nameKz", lock?.name?.kz);
+          sv("appRu", lock?.application?.ru);
+          sv("appKz", lock?.application?.kz);
+          sv("image", lock?.image);
+          sv("video", lock?.video);
+          sv("pdfRu", lock?.pdf?.ru);
+          sv("pdfKz", lock?.pdf?.kz);
+
+          ruStepsEl.innerHTML = "";
+          kzStepsEl.innerHTML = "";
+          (lock?.instructions?.ru ?? []).forEach(s => addStep("ru", s));
+          (lock?.instructions?.kz ?? []).forEach(s => addStep("kz", s));
+
+          statusEl.textContent = `Загружено: ${id}`;
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        };
+      });
+
+      listEl.querySelectorAll("[data-del]").forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.getAttribute("data-del");
+          if (!confirm(`Удалить "${id}"?`)) return;
+          await deleteDoc(doc(db, "locks", id));
+          statusEl.textContent = `Удалено: ${id}`;
+          await loadList();
+        };
+      });
+    }
+
+    // старт
+    await loadList();
+  </script>
 </body>
 </html>
